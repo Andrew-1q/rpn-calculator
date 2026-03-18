@@ -1,0 +1,93 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.9, '3.10', 3.11, 3.12]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Lint with pylint
+      run: |
+        pylint calculator/ --fail-under=9.0
+
+    - name: Run tests
+      run: |
+        python -m unittest discover tests/
+
+    - name: Test with pytest (if available)
+      run: |
+        pip install pytest
+        pytest tests/ -v
+
+  demo-failing-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Demonstrate failing test
+      run: |
+        echo "=== ДЕМОНСТРАЦИЯ ПРОВАЛЬНОГО ТЕСТА ==="
+        echo "Создаём временный тест, который должен упасть..."
+        
+        cat > test_failing.py << 'EOF'
+        import unittest
+        
+        class TestFailing(unittest.TestCase):
+            def test_should_fail(self):
+                self.assertEqual(1, 2, "Этот тест специально провален для демонстрации")
+        
+        if __name__ == '__main__':
+            unittest.main()
+        EOF
+        
+        python test_failing.py || echo "Тест упал, как и ожидалось!"
+
+    - name: Demonstrate fixed test
+      run: |
+        echo -e "\n=== ДЕМОНСТРАЦИЯ ИСПРАВЛЕННОГО ТЕСТА ==="
+        echo "Исправляем тест..."
+        
+        cat > test_fixed.py << 'EOF'
+        import unittest
+        
+        class TestFixed(unittest.TestCase):
+            def test_should_pass(self):
+                self.assertEqual(1, 1, "Тест исправлен и теперь проходит")
+        
+        if __name__ == '__main__':
+            unittest.main()
+        EOF
+        
+        python test_fixed.py
+        echo "Тест успешно пройден!"

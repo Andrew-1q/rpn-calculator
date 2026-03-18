@@ -1,0 +1,13 @@
+[MASTER]
+fail-under=9.0
+
+[MESSAGES CONTROL]
+disable=C0114,C0115,C0116,R0201,W0613,R0903
+
+[FORMAT]
+max-line-length=100
+
+[DESIGN]
+max-args=5
+max-attributes=7
+max-public-methods=20
