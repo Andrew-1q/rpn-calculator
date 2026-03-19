@@ -28,7 +28,7 @@ class RPNCalculator:
         ')': 0
     }
 
-    # Операции и соответствующие функции
+    # Операциии и соответствующие функции
     OPERATIONS = {
         '+': operator.add,
         '-': operator.sub,
@@ -110,7 +110,7 @@ class RPNCalculator:
         output = []
         stack = []
 
-        for token in tokens:
+        #for token in tokens:
             # Если токен - число
             if self._is_number(token):
                 output.append(token)
